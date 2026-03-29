@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOSH7 — Juice Launch Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0f0f;
+  --bg2: #161717;
+  --bg3: #1e1f1f;
+  --bg4: #252626;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0eeea;
+  --text2: #9a9690;
+  --text3: #5e5c58;
+  --green: #3dcc8e;
+  --green-bg: rgba(61,204,142,0.1);
+  --green-border: rgba(61,204,142,0.25);
+  --amber: #f0a842;
+  --amber-bg: rgba(240,168,66,0.1);
+  --amber-border: rgba(240,168,66,0.25);
+  --red: #e05858;
+  --red-bg: rgba(224,88,88,0.1);
+  --red-border: rgba(224,88,88,0.25);
+  --blue: #5b9ef4;
+  --blue-bg: rgba(91,158,244,0.1);
+  --blue-border: rgba(91,158,244,0.25);
+  --purple: #a78bfa;
+  --purple-bg: rgba(167,139,250,0.1);
+  --accent: #3dcc8e;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+h1,h2,h3,h4 { font-family: 'Syne', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+
+/* Layout */
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px; position: sticky; top: 0; background: var(--bg); z-index: 100;
+}
+.logo { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: .06em; }
+.logo span { color: var(--green); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.last-saved { font-size: 12px; color: var(--text3); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+.tab-btn {
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
+  padding: 10px 20px; cursor: pointer; background: none; border: none;
+  color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all .15s; letter-spacing: .03em;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Stats strip */
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 2rem; }
+.stat-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+.stat-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; }
+.stat-val.green { color: var(--green); }
+.stat-val.amber { color: var(--amber); }
+.stat-val.blue { color: var(--blue); }
+
+/* Badges */
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px;
+  border-radius: 4px; letter-spacing: .03em; white-space: nowrap;
+}
+.badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(167,139,250,.25); }
+.badge-gray { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+
+/* Cards */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 12px;
+}
+.card:hover { border-color: var(--border2); }
+
+/* Menu items */
+.item-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 10px;
+  transition: border-color .15s;
+}
+.item-card:hover { border-color: var(--border2); }
+.item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.item-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+.item-price { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--green); white-space: nowrap; }
+.item-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.item-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+.item-costs { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+.platform-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.platform-toggle { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+.platform-toggle input[type=checkbox] { display: none; }
+.toggle-track {
+  width: 34px; height: 18px; border-radius: 9px; background: var(--bg4);
+  border: 1px solid var(--border2); position: relative; cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.toggle-track::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 12px; height: 12px; border-radius: 50%; background: var(--text3);
+  transition: all .2s;
+}
+.platform-toggle input:checked + .toggle-track { background: var(--green-bg); border-color: var(--green); }
+.platform-toggle input:checked + .toggle-track::after { left: 18px; background: var(--green); }
+.platform-label { font-size: 12px; color: var(--text2); user-select: none; }
+.platform-live { color: var(--green) !important; }
+
+/* Checklist */
+.checklist-section { margin-bottom: 2rem; }
+.checklist-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.checklist-title .pct-badge { font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+.check-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.check-item:last-child { border-bottom: none; }
+.check-item input[type=checkbox] { display: none; }
+.check-box {
+  width: 18px; height: 18px; min-width: 18px; border-radius: 5px;
+  border: 1px solid var(--border2); background: var(--bg3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; margin-top: 2px;
+  transition: all .15s;
+}
+.check-box.checked { background: var(--green); border-color: var(--green); }
+.check-box.checked::after { content: '✓'; color: #0e0f0f; font-size: 11px; font-weight: 700; }
+.check-text { font-size: 13px; color: var(--text2); cursor: pointer; line-height: 1.5; }
+.check-text.done { color: var(--text3); text-decoration: line-through; }
+
+/* Progress bar */
+.progress-wrap { margin-bottom: 1.5rem; }
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; color: var(--text3); }
+.progress-bar { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
+
+/* Insight boxes */
+.insight { background: var(--blue-bg); border: 1px solid var(--blue-border); border-radius: var(--radius); padding: .7rem 1rem; margin-bottom: 10px; font-size: 13px; color: var(--text2); line-height: 1.6; }
+.insight.warn { background: var(--amber-bg); border-color: var(--amber-border); }
+.insight.tip { background: var(--green-bg); border-color: var(--green-border); }
+.insight strong { color: var(--text); }
+
+/* Competitors */
+.comp-grid { display: grid; grid-template-columns: 1.3fr 0.8fr 0.8fr 0.8fr 1.8fr; gap: 0; }
+.comp-head { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); padding: 6px 8px; font-weight: 600; }
+.comp-cell { font-size: 13px; padding: 10px 8px; border-top: 1px solid var(--border); color: var(--text2); display: flex; align-items: center; }
+.comp-cell:first-child { color: var(--text); font-weight: 500; }
+.comp-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.comp-sub { font-size: 11px; color: var(--text3); }
+.rating-stars { color: var(--amber); font-size: 12px; }
+
+/* Price compare */
+.price-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.price-row:last-child { border-bottom: none; }
+.price-item-name { flex: 1.2; font-size: 13px; font-weight: 500; }
+.price-you { flex: .6; }
+.price-market { flex: .8; font-size: 12px; color: var(--text3); }
+.price-note { flex: 1.8; font-size: 12px; color: var(--text3); }
+
+/* Insights tab */
+.insight-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 10px; }
+.insight-card-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.insight-card-body { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+/* Responsive */
+@media(max-width:700px) {
+  .container { padding: 1rem; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .comp-grid { grid-template-columns: 1fr 1fr; }
+  .comp-head:nth-child(n+3), .comp-cell:nth-child(n+3) { display: none; }
+  .header { padding: 0 1rem; }
+}
+
+/* Save toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #0e0f0f;
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .03em;
+  padding: 10px 18px; border-radius: var(--radius); opacity: 0; pointer-events: none;
+  transition: opacity .3s; z-index: 999;
+}
+.toast.show { opacity: 1; }
+
+/* Notes field */
+.notes-area {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: .7rem 1rem; resize: vertical; min-height: 80px; outline: none; line-height: 1.6;
+}
+.notes-area:focus { border-color: var(--border2); }
+.notes-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; display: block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">NOSH<span>7</span> <span style="color:var(--text3);font-weight:400;font-size:14px;margin-left:6px">Juice Launch Tracker</span></div>
+  <div class="header-right">
+    <span class="last-saved" id="last-saved">Not saved yet</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total items</div>
+      <div class="stat-val">10</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Live on Zomato</div>
+      <div class="stat-val green" id="s-zomato">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Live on Swiggy</div>
+      <div class="stat-val amber" id="s-swiggy">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Checklist done</div>
+      <div class="stat-val blue" id="s-check">0%</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('menu',this)">Menu & Pricing</button>
+    <button class="tab-btn" onclick="switchTab('checklist',this)">Launch Checklist</button>
+    <button class="tab-btn" onclick="switchTab('competitors',this)">Competitors</button>
+    <button class="tab-btn" onclick="switchTab('insights',this)">Insights</button>
+  </div>
+
+  <!-- MENU TAB -->
+  <div class="tab-panel active" id="tab-menu">
+
+    <div class="insight tip"><strong>Positioning:</strong> Every item title should carry "No Added Sugar · 300ml Honest Pour · Sealed Bottle" — directly attacks Masti Juice's documented complaint of short-poured, sugar-spiked 250ml servings on Zomato.</div>
+
+    <div id="menu-items"></div>
+
+    <div style="margin-top:1.5rem">
+      <span class="notes-label">General notes (menu / ops)</span>
+      <textarea class="notes-area" id="notes-menu" placeholder="Add any notes about the menu, ingredient sourcing, prep notes..."></textarea>
+    </div>
+  </div>
+
+  <!-- CHECKLIST TAB -->
+  <div class="tab-panel" id="tab-checklist">
+
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span>Overall launch progress</span>
+        <span id="check-label">0 / 0 done</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="check-bar" style="width:0%"></div></div>
+    </div>
+
+    <div class="insight warn"><strong>Rule:</strong> Tick an item only after it is fully done — not just planned. Each checkbox state is saved automatically.</div>
+
+    <div class="checklist-section">
+      <div class="checklist-title">
+        <span>Zomato listing</span>
+        <span class="badge badge-green pct-badge" id="pct-zomato">0%</span>
+      </div>
+      <div class="card" id="checks-zomato"></div>
+    </div>
+
+    <div class="checklist-section">
+      <div class="checklist-title">
+        <span>Swiggy listing</span>
+        <span class="badge badge-amber pct-badge" id="pct-swiggy">0%</span>
+      </div>
+      <div class="card" id="checks-swiggy"></div>
+    </div>
+
+    <div class="checklist-section">
+      <div class="checklist-title">
+        <span>Operations (before first order)</span>
+        <span class="badge badge-blue pct-badge" id="pct-ops">0%</span>
+      </div>
+      <div class="card" id="checks-ops"></div>
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <span class="notes-label">Checklist notes</span>
+      <textarea class="notes-area" id="notes-checklist" placeholder="Blockers, pending vendors, follow-ups..."></textarea>
+    </div>
+  </div>
+
+  <!-- COMPETITORS TAB -->
+  <div class="tab-panel" id="tab-competitors">
+
+    <div class="insight"><strong>Your zone:</strong> Satellite, Prahlad Nagar, Bodakdev. All competitors below fall within your Zomato delivery radius. Masti Juice (SG Road) is your closest geo-competitor — and the weakest on Zomato with a 3.1 rating.</div>
+
+    <div class="card" style="overflow-x:auto;padding:0 1.5rem">
+      <div class="comp-grid">
+        <div class="comp-head">Brand</div>
+        <div class="comp-head">Location</div>
+        <div class="comp-head">Avg price</div>
+        <div class="comp-head">Zomato rating</div>
+        <div class="comp-head">Your edge</div>
+      </div>
+      <div id="comp-rows"></div>
+    </div>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin:1.5rem 0 10px">Price gap: you vs market</h3>
+    <div class="card" id="price-compare"></div>
+
+    <div style="margin-top:1.5rem">
+      <span class="notes-label">Competitor notes / updates</span>
+      <textarea class="notes-area" id="notes-competitors" placeholder="New competitors spotted, price changes, promo observations..."></textarea>
+    </div>
+  </div>
+
+  <!-- INSIGHTS TAB -->
+  <div class="tab-panel" id="tab-insights">
+
+    <div class="insight tip" style="margin-bottom:1.5rem"><strong>These insights are drawn from your full research conversation.</strong> They reflect actual competitor data, Zomato review analysis, and NOSH7's existing operations.</div>
+
+    <div class="insight-card">
+      <div class="insight-card-title">Why no-sugar is a real moat</div>
+      <div class="insight-card-body">Justdial reviewers flagged Masti Juice Maninagar for adding sugar syrup and serving rotten juice off-season. Zomato reviews (rated 3.1/5) complain about short quantity — not truly 250ml as advertised. Your explicit <em>"No added sugar · 300ml honest pour"</em> in every item title is a direct, documented response to actual competitor failures in your zone — not just a positioning claim.</div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-title">Chia Lemonade is your zero-competition item</div>
+      <div class="insight-card-body">No competitor in Satellite / Prahlad Nagar / Bodakdev sells Chia Lemonade. You already stock chia seeds from your salad operations — zero incremental procurement cost. Priced at ₹99, it has the highest net margin of your easy-prep items (~₹28 net after all deductions). This should be your Zomato hero/banner image product from Day 1.</div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-title">Recommended launch sequence (minimise waste risk)</div>
+      <div class="insight-card-body">
+        <strong>Week 1:</strong> Watermelon + Mosambi + Chia Lemonade — get ops flow right (fill → seal → label → pack with salad orders).<br>
+        <strong>Week 2:</strong> Add Carrot Beetroot + Pineapple + Jamun Shot.<br>
+        <strong>Week 3:</strong> Add Kiwi + Pomegranate + Orange + Mixed Fruit.<br>
+        This prevents fruit waste during ramp-up and gives you time to dial in quality on 3 items before scaling to 10.
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-title">Cross-sell to existing salad subscribers</div>
+      <div class="insight-card-body">Every salad subscriber is a warm juice lead — they already trust NOSH7 and they care about health. A single WhatsApp message like <em>"Pair your NOSH7 salad with a no-sugar Pomegranate Juice — add ₹149 to today's order"</em> costs ₹0 and converts at a much higher rate than cold acquisition. Your WhatsApp CRM system (already designed) handles this natively.</div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-title">Sealed PET bottle = delivery quality + premium signal</div>
+      <div class="insight-card-body">Standard juice competitors use open cups that spill in transit and feel cheap. Sealed 300ml PET bottles with tamper-proof caps from Kalupur/Rakhial packaging markets cost ₹4–6/piece at 500+ unit qty — within your ₹10 packaging budget. Add a small NOSH7-branded label sticker (₹1–2 at 1000+ qty from local Ahmedabad print shops) for brand recall.</div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-title">Pricing rule — never discount below MRP</div>
+      <div class="insight-card-body">Your listed MRPs already absorb Zomato 30% commission + 12% GST + ₹10 packaging + ~20% net margin. Any discount applied directly from your end pushes you margin-negative. If you want to run promos, use Zomato Gold / restaurant-funded discount programmes where the discount is partially absorbed by the platform — not solely by you.</div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-card-title">Seasonal menu calendar (Gujarat)</div>
+      <div class="insight-card-body">
+        <strong>Mar–Jun:</strong> Watermelon peak, very low raw cost. Push hard.<br>
+        <strong>May–Jul:</strong> Mango — add Mango Juice as a limited item at ₹99. High demand.<br>
+        <strong>Jun–Aug:</strong> Jamun season — fresh jamun cost drops, push Jamun Shot.<br>
+        <strong>Oct–Feb:</strong> Switch hero to Mosambi + Carrot Beetroot + Pomegranate. Watermelon cost rises in winter — deprioritise.<br>
+        Sourcing from Vasna Market Yard (closest to Satellite) vs. Jamalpur/Kalupur for bulk/variety.
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <span class="notes-label">Your notes / ideas</span>
+      <textarea class="notes-area" id="notes-insights" placeholder="New ideas, learnings from orders, feedback from customers..."></textarea>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Saved</div>
+
+<script>
+const ITEMS = [
+  {id:1,name:"Watermelon Juice",vol:"300ml",mrp:79,raw:"₹15–18",net:20,cat:"Classic",priority:"Launch first",priorityCls:"badge-green",desc:"Pure watermelon — nothing else. Zero sugar, zero fluff. Cold, hydrating summer in a bottle."},
+  {id:2,name:"Mosambi (Sweet Lime) Juice",vol:"300ml",mrp:99,raw:"₹22–25",net:24,cat:"Classic",priority:"Launch first",priorityCls:"badge-green",desc:"Freshly pressed sweet lime, served as nature made it. No sugar added. Light, citrusy, great for digestion."},
+  {id:3,name:"Pineapple Juice",vol:"300ml",mrp:99,raw:"₹22–26",net:24,cat:"Classic",priority:"Week 2",priorityCls:"badge-amber",desc:"Real pineapple, pressed fresh. Anti-inflammatory, gut-friendly, and naturally sweet — no sugar needed."},
+  {id:4,name:"Carrot + Beetroot Detox",vol:"300ml",mrp:99,raw:"₹20–24",net:26,cat:"Detox",priority:"Week 2",priorityCls:"badge-amber",desc:"Earthy beet + sweet carrot = one powerful detox combo. No sugar, no shortcuts. Your daily cleanse."},
+  {id:5,name:"Orange Juice",vol:"300ml",mrp:109,raw:"₹28–32",net:24,cat:"Classic",priority:"Week 3",priorityCls:"badge-gray",desc:"100% fresh orange, pressed to order. High in Vitamin C, zero sugar added. Best consumed cold."},
+  {id:6,name:"Mixed Fruit Cocktail",vol:"300ml",mrp:109,raw:"₹28–32",net:24,cat:"Classic",priority:"Week 3",priorityCls:"badge-gray",desc:"Seasonal fruits, blended fresh daily. No sugar, no concentrate. A different mix, same honest promise."},
+  {id:7,name:"Jamun Shot",vol:"150ml",mrp:89,raw:"₹20–24",net:22,cat:"Shot",priority:"Week 2",priorityCls:"badge-amber",desc:"Small but mighty — pure jamun, naturally tangy. Traditionally supports blood sugar balance. No sugar added."},
+  {id:8,name:"Kiwi Juice",vol:"300ml",mrp:129,raw:"₹32–38",net:26,cat:"Premium",priority:"Week 3",priorityCls:"badge-gray",desc:"Tropical kiwi pressed fresh. Naturally rich in digestive enzymes and Vitamin C. Sugar-free, bold, refreshing."},
+  {id:9,name:"Pomegranate Juice",vol:"300ml",mrp:149,raw:"₹40–48",net:28,cat:"Premium",priority:"Week 3",priorityCls:"badge-gray",desc:"Dense, antioxidant-rich pomegranate — freshly pressed, nothing added. One glass = serious nutrition."},
+  {id:10,name:"Chia Lemonade",vol:"300ml",mrp:99,raw:"₹18–22",net:28,cat:"Signature",priority:"Launch first",priorityCls:"badge-green",desc:"Fresh lemon + soaked chia seeds + mint. NOSH7 signature drink. Keto-friendly. No sugar. Zero competition in your zone."}
+];
+
+const CAT_BADGE = {Classic:"badge-blue",Detox:"badge-green",Shot:"badge-amber",Premium:"badge-red",Signature:"badge-purple"};
+
+const ZOMATO_CHECKS = [
+  "Menu section 'Juices' added to existing NOSH7 Zomato listing",
+  "All 10 items uploaded with name, price, and description",
+  "Item photos uploaded (min 1 per item, natural light, bottle visible)",
+  "Correct category set as Beverages / Juices",
+  "'No Added Sugar' and volume (ml) stated in each item title",
+  "GST rate verified — beverages confirm 5% on Zomato partner portal",
+  "Packaging noted as sealed bottle in internal listing details",
+  "Operating hours confirmed correct for juice section",
+  "Test order placed internally and fulfilled before going live",
+  "FSSAI licence number current and updated on listing"
+];
+
+const SWIGGY_CHECKS = [
+  "Swiggy restaurant listing confirmed (same NOSH7 account)",
+  "Separate 'Juices' menu section created on Swiggy",
+  "All 10 items added with names matching Zomato exactly",
+  "Prices matched to Zomato (no price mismatch confusion for customers)",
+  "Photos uploaded (same photos as Zomato to save time)",
+  "Packaging type confirmed as sealed bottle with Swiggy ops",
+  "Test order placed and fulfilled before going live",
+  "FSSAI licence number updated on Swiggy listing if required"
+];
+
+const OPS_CHECKS = [
+  "300ml PET bottles with tamper-proof caps sourced (min 500 units, ₹4–6/piece — Kalupur/Rakhial market)",
+  "NOSH7-branded label stickers printed (local Ahmedabad printer, ₹1–2/piece at 1000+ qty)",
+  "Centrifugal juicer cleaned and dedicated to juice prep only",
+  "Fruit sourcing route confirmed: Vasna Market Yard or local wholesale vendor",
+  "Daily prep SOP written: fill → seal → label → pack → dispatch",
+  "No-waste rule set: no raw fruit stored >24 hours for juice use",
+  "Chia seeds inventory confirmed for Chia Lemonade (already in NOSH7 kitchen)",
+  "Staff trained on honest 300ml fill per bottle (no short-pouring)",
+  "Cold storage confirmed: max 2 hrs from prep to dispatch",
+  "WhatsApp broadcast draft ready for existing salad subscribers"
+];
+
+const COMPETITORS = [
+  {name:"Masti Juice",sub:"SG Road, Satellite",loc:"Satellite",price:"₹65–100",rating:"3.1 ★",ratingCls:"badge-red",edge:"Complaints: short 250ml pours, sugar syrup added. You: honest 300ml, no sugar, sealed bottle."},
+  {name:"Mad Over Juice",sub:"Satellite",loc:"Satellite",price:"₹90–130",rating:"3.5 ★",ratingCls:"badge-amber",edge:"Good menu, no brand story. You have NOSH7's health-first no-sugar identity."},
+  {name:"The Juicebox",sub:"Prahlad Nagar",loc:"Prahlad Nagar",price:"₹80–120",rating:"—",ratingCls:"badge-gray",edge:"Generic menu with no differentiation. Your Chia Lemonade + Detox range has no competitor match."},
+  {name:"Juice Wala",sub:"Satellite",loc:"Satellite",price:"₹60–90",rating:"—",ratingCls:"badge-gray",edge:"Budget segment, no health angle. Different buyer profile — not a direct threat."},
+  {name:"Bade Dilwala",sub:"Prahlad Nagar",loc:"Prahlad Nagar",price:"₹70–100",rating:"—",ratingCls:"badge-gray",edge:"Mostly walk-in. Low Zomato delivery presence = low competition for your delivery orders."},
+  {name:"Fresh Fruit Juice & Platter",sub:"Nikol",loc:"Nikol (East)",price:"₹70–110",rating:"—",ratingCls:"badge-gray",edge:"Best public price reference: Orange ₹95, Kiwi ₹105, Pineapple ₹90. Your prices are calibrated against these."},
+  {name:"Kudrati Kahumbo",sub:"City area",loc:"City",price:"₹80–120",rating:"—",ratingCls:"badge-gray",edge:"Known for Jamun shots as signature item — validates your Jamun Shot (₹89) on the menu."}
+];
+
+const PRICE_COMPARE = [
+  {item:"Watermelon",you:"₹79",market:"₹65–80",note:"At market floor — intentional volume driver."},
+  {item:"Mosambi",you:"₹99",market:"₹80–100",note:"Slight premium justified by 300ml honest pour."},
+  {item:"Pineapple",you:"₹99",market:"₹90–110",note:"Competitive. In-line with market."},
+  {item:"Kiwi",you:"₹129",market:"₹105–130",note:"Fair premium for 300ml vs competitors' 250ml."},
+  {item:"Pomegranate",you:"₹149",market:"₹130–160",note:"Premium segment. No-sugar angle justifies it."},
+  {item:"Chia Lemonade",you:"₹99",market:"No competitor",note:"Unique item. Full pricing freedom."}
+];
+
+// ---- State ----
+let state = {
+  zomato: {},
+  swiggy: {},
+  checks_zomato: {},
+  checks_swiggy: {},
+  checks_ops: {},
+  notes_menu: "",
+  notes_checklist: "",
+  notes_competitors: "",
+  notes_insights: ""
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem("nosh7-juice-v2");
+    if (saved) state = Object.assign(state, JSON.parse(saved));
+  } catch(e) {}
+}
+
+function saveState() {
+  localStorage.setItem("nosh7-juice-v2", JSON.stringify(state));
+  const now = new Date();
+  document.getElementById("last-saved").textContent = "Saved " + now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+  const toast = document.getElementById("toast");
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 1800);
+}
+
+// ---- Render menu ----
+function renderMenu() {
+  const el = document.getElementById("menu-items");
+  el.innerHTML = ITEMS.map(it => {
+    const zOn = !!state.zomato[it.id];
+    const swOn = !!state.swiggy[it.id];
+    return `
+    <div class="item-card">
+      <div class="item-header">
+        <div>
+          <div class="item-name">${it.name}</div>
+          <div class="item-meta" style="margin-top:5px">
+            <span class="badge ${CAT_BADGE[it.cat]||'badge-gray'}">${it.cat}</span>
+            <span class="badge ${it.priorityCls}">${it.priority}</span>
+            <span class="badge badge-gray">${it.vol}</span>
+          </div>
+        </div>
+        <div class="item-price">₹${it.mrp}</div>
+      </div>
+      <div class="item-desc">${it.desc}</div>
+      <div class="item-costs">Raw cost: ${it.raw} &nbsp;·&nbsp; Net after Zomato (30% + 12% GST + ₹10 pkg): ~₹${it.net}</div>
+      <div class="platform-row">
+        <label class="platform-toggle" onclick="togglePlatform(${it.id},'zomato')">
+          <input type="checkbox" ${zOn?"checked":""} id="z-${it.id}">
+          <div class="toggle-track"></div>
+          <span class="platform-label ${zOn?'platform-live':''}">Live on Zomato</span>
+        </label>
+        <label class="platform-toggle" onclick="togglePlatform(${it.id},'swiggy')">
+          <input type="checkbox" ${swOn?"checked":""} id="sw-${it.id}">
+          <div class="toggle-track"></div>
+          <span class="platform-label ${swOn?'platform-live':''}">Live on Swiggy</span>
+        </label>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function togglePlatform(id, platform) {
+  state[platform][id] = !state[platform][id];
+  renderMenu();
+  updateStats();
+  saveState();
+}
+
+// ---- Render checklists ----
+function renderCheckSection(elId, checks, stateKey, pctId) {
+  const el = document.getElementById(elId);
+  el.innerHTML = checks.map((txt, i) => {
+    const done = !!state[stateKey][i];
+    return `
+    <div class="check-item" onclick="toggleCheck('${stateKey}',${i})">
+      <div class="check-box ${done?'checked'}"></div>
+      <span class="check-text ${done?'done'}">${txt}</span>
+    </div>`;
+  }).join("");
+  updateCheckPct(checks, stateKey, pctId);
+}
+
+function toggleCheck(stateKey, i) {
+  state[stateKey][i] = !state[stateKey][i];
+  renderAllChecks();
+  updateStats();
+  saveState();
+}
+
+function renderAllChecks() {
+  renderCheckSection("checks-zomato", ZOMATO_CHECKS, "checks_zomato", "pct-zomato");
+  renderCheckSection("checks-swiggy", SWIGGY_CHECKS, "checks_swiggy", "pct-swiggy");
+  renderCheckSection("checks-ops", OPS_CHECKS, "checks_ops", "pct-ops");
+  updateGlobalProgress();
+}
+
+function updateCheckPct(checks, stateKey, pctId) {
+  const done = checks.filter((_,i) => !!state[stateKey][i]).length;
+  const pct = Math.round(done / checks.length * 100);
+  const el = document.getElementById(pctId);
+  if (el) el.textContent = pct + "%";
+}
+
+function updateGlobalProgress() {
+  const all = ZOMATO_CHECKS.length + SWIGGY_CHECKS.length + OPS_CHECKS.length;
+  const done = Object.values(state.checks_zomato).filter(Boolean).length
+    + Object.values(state.checks_swiggy).filter(Boolean).length
+    + Object.values(state.checks_ops).filter(Boolean).length;
+  const pct = all ? Math.round(done / all * 100) : 0;
+  document.getElementById("check-label").textContent = done + " / " + all + " done";
+  document.getElementById("check-bar").style.width = pct + "%";
+  document.getElementById("s-check").textContent = pct + "%";
+}
+
+// ---- Competitors ----
+function renderCompetitors() {
+  const el = document.getElementById("comp-rows");
+  el.innerHTML = COMPETITORS.map(c => `
+    <div class="comp-grid" style="align-items:start">
+      <div class="comp-cell" style="flex-direction:column;align-items:flex-start;gap:2px">
+        <span class="comp-name">${c.name}</span>
+        <span class="comp-sub">${c.sub}</span>
+      </div>
+      <div class="comp-cell">${c.loc}</div>
+      <div class="comp-cell">${c.price}</div>
+      <div class="comp-cell"><span class="badge ${c.ratingCls}">${c.rating}</span></div>
+      <div class="comp-cell" style="font-size:12px;color:var(--text3)">${c.edge}</div>
+    </div>
+  `).join("");
+
+  const pc = document.getElementById("price-compare");
+  pc.innerHTML = PRICE_COMPARE.map(p => `
+    <div class="price-row">
+      <div class="price-item-name">${p.item}</div>
+      <div class="price-you"><span class="badge badge-green">${p.you}</span></div>
+      <div class="price-market">${p.market}</div>
+      <div class="price-note">${p.note}</div>
+    </div>
+  `).join("");
+}
+
+// ---- Stats ----
+function updateStats() {
+  document.getElementById("s-zomato").textContent = Object.values(state.zomato).filter(Boolean).length;
+  document.getElementById("s-swiggy").textContent = Object.values(state.swiggy).filter(Boolean).length;
+  updateGlobalProgress();
+}
+
+// ---- Notes ----
+function bindNotes() {
+  ["menu","checklist","competitors","insights"].forEach(key => {
+    const el = document.getElementById("notes-" + key);
+    if (!el) return;
+    el.value = state["notes_" + key] || "";
+    el.addEventListener("input", () => {
+      state["notes_" + key] = el.value;
+      saveState();
+    });
+  });
+}
+
+// ---- Tabs ----
+function switchTab(name, btn) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  if (btn) btn.classList.add("active");
+}
+
+// ---- Init ----
+loadState();
+renderMenu();
+renderAllChecks();
+renderCompetitors();
+updateStats();
+bindNotes();
+</script>
+</body>
+</html>
